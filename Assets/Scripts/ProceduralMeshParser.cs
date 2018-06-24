@@ -15,6 +15,25 @@ public class ProceduralMeshParser : MonoBehaviour
 	private static Dictionary<string, PMesh.RuleSet> mRuleSets = new Dictionary<string, PMesh.RuleSet>();
 	private static PMesh.RuleSet mCurrentSet = null;
 	private static Dictionary<string, float> mVariables = new Dictionary<string, float>();
+	//private static Dictionary<string, int> mCommands = new Dictionary<string, int>()
+	//{ 
+	//	{ "extrude", 1 },
+	//	{ "scale", 3 },
+	//	{ "translate", 3 },
+	//	{ "split", 3 },
+	//	{ "color", 1 },
+	//	{ "copy", 1 },
+	//};
+
+	private static Dictionary<string, Tuple<int, PMesh.BaseRule>> mCommands = new Dictionary<string, Tuple<int, PMesh.BaseRule>>()
+	{
+		{ "extrude",	new Tuple<int, PMesh.BaseRule>(1, new PMesh.ExtrudeRule()) },
+		{ "scale",		new Tuple<int, PMesh.BaseRule>(3, new PMesh.ScaleRule()) },
+		{ "translate",	new Tuple<int, PMesh.BaseRule>(3, new PMesh.TranslateRule()) },
+		{ "split",		new Tuple<int, PMesh.BaseRule>(3, new PMesh.SplitRule()) },
+		{ "color",		new Tuple<int, PMesh.BaseRule>(1, new PMesh.ColorRule()) },
+		{ "copy",		new Tuple<int, PMesh.BaseRule>(1, new PMesh.CopyRule()) },
+	};
 	
 	public static void ParseInput(string aInput, string aVariables)
 	{
@@ -89,55 +108,11 @@ public class ProceduralMeshParser : MonoBehaviour
 		//Debug.Log(lmao);
 		//return;
 
-		if (command.Equals("extrude") == true && arguments.Length == 1)
+		if (mCommands.ContainsKey(command) == true && arguments.Length == mCommands[command].First)
 		{
-			PMesh.ExtrudeRule extrudeRule = new PMesh.ExtrudeRule();
-			extrudeRule.mExtrudeLength = arguments[0];
-			mCurrentSet.mRules.Add(extrudeRule);
-		}
-		else if (command.Equals("scale") == true && arguments.Length  == 3)
-		{
-			PMesh.ScaleRule scaleRule = new PMesh.ScaleRule();
-			scaleRule.mScale[0] = arguments[0];
-			scaleRule.mScale[1] = arguments[1];
-			scaleRule.mScale[2] = arguments[2];
-			mCurrentSet.mRules.Add(scaleRule);
-		}
-		else if (command.Equals("translate") == true && arguments.Length == 3)
-		{
-			PMesh.TranslateRule translateRule = new PMesh.TranslateRule();
-			translateRule.mTranslation[0] = arguments[0];
-			translateRule.mTranslation[1] = arguments[1];
-			translateRule.mTranslation[2] = arguments[2];
-			mCurrentSet.mRules.Add(translateRule);
-		}
-		else if (command.Equals("copy") == true && arguments.Length == 1)
-		{
-			PMesh.CopyRule copyRule = new PMesh.CopyRule();
-			copyRule.mNameOfChild = arguments[0];
-			mCurrentSet.mRules.Add(copyRule);
-		}
-		else if (command.Equals("split") == true && arguments.Length == 3)
-		{
-			PMesh.SplitRule splitRule = new PMesh.SplitRule();
-			if (arguments[0].Trim().ToLower().Equals("x") == true)
-				splitRule.mAxis = PMesh.SplitRule.eSplitAxis.X;
-			else if (arguments[0].Trim().ToLower().Equals("y") == true)
-				splitRule.mAxis = PMesh.SplitRule.eSplitAxis.Y;
-			else if (arguments[0].Trim().ToLower().Equals("z") == true)
-				splitRule.mAxis = PMesh.SplitRule.eSplitAxis.Z;
-			else
-				return;
-				
-			splitRule.mNumberOfSplits = arguments[1];
-			splitRule.mNameOfChildren = arguments[2];
-			mCurrentSet.mRules.Add(splitRule);
-		}
-		else if (command.Equals("color") == true && arguments.Length == 1)
-		{
-			PMesh.ColorRule colorRule = new PMesh.ColorRule();
-			colorRule.mHexColor = arguments[0];
-			mCurrentSet.mRules.Add(colorRule);
+			PMesh.BaseRule rule = mCommands[command].Second.ShallowCopy();
+			rule.SetVariables(arguments);
+			mCurrentSet.mRules.Add(rule);
 		}
 	}
 

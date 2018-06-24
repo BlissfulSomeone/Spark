@@ -17,6 +17,26 @@ namespace PMesh
 		public string mNumberOfSplits = string.Empty;
 		public string mNameOfChildren = string.Empty;
 
+		public override void SetVariables(params string[] aVariables)
+		{
+			switch (aVariables[0])
+			{
+				case "x":
+					mAxis = eSplitAxis.X;
+					break;
+
+				case "y":
+					mAxis = eSplitAxis.Y;
+					break;
+
+				case "z":
+					mAxis = eSplitAxis.Z;
+					break;
+			}
+			mNumberOfSplits = aVariables[1];
+			mNameOfChildren = aVariables[2];
+		}
+
 		public override void Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
 		{
 			bool isRelative = mNumberOfSplits[0] == '\'';

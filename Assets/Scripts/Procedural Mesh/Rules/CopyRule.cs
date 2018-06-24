@@ -8,6 +8,11 @@ namespace PMesh
 	{
 		public string mNameOfChild = string.Empty;
 
+		public override void SetVariables(params string[] aVariables)
+		{
+			mNameOfChild = aVariables[0];
+		}
+
 		public override void Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
 		{
 			Shape copyShape = new Shape();
