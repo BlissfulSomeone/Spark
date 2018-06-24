@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class CameraController : MonoBehaviour
 {
 	[SerializeField]
-	private Transform myCameraTransform; 
+	private Transform myCameraTransform;
 	[SerializeField]
 	private bool myUseInitialSettings;
 	[SerializeField]
