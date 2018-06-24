@@ -1,0 +1,9 @@
+Footprint -->
+	scale(10, 2, 1);
+	split(x, 1, Base);
+	
+---
+
+Base -->
+	scale(1, 'rand(0.8, 1.5), 1);
+	copy(Cube);
