@@ -8,12 +8,12 @@ namespace PMesh
 	{
 		public string mNameOfChild = string.Empty;
 
-		public override void SetVariables(params string[] aVariables)
+		public override void SetVariables(string[] aVariables, string aCommandLine)
 		{
 			mNameOfChild = aVariables[0];
 		}
 
-		public override void Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
+		public override eRuleReply Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
 		{
 			Shape copyShape = new Shape();
 			copyShape.mName = mNameOfChild;
@@ -22,6 +22,14 @@ namespace PMesh
 			copyShape.mScope.mColor = aShape.mScope.mColor;
 			aShapeList.Add(copyShape);
 			aShape.mScope.mChildren.Add(copyShape.mScope);
+			return eRuleReply.Success;
+		}
+
+		public override BaseRule DeepCopy()
+		{
+			CopyRule copy = new CopyRule();
+			copy.mNameOfChild = mNameOfChild;
+			return copy;
 		}
 	}
 }

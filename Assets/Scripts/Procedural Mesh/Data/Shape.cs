@@ -9,6 +9,7 @@ namespace PMesh
 		public Scope mScope = null;
 		public string mName = string.Empty;
 		public SplitAttributes mSplitData = null;
+		public bool mIsDone = false;
 
 		public Shape()
 		{

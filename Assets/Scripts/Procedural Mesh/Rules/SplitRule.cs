@@ -17,7 +17,7 @@ namespace PMesh
 		public string mNumberOfSplits = string.Empty;
 		public string mNameOfChildren = string.Empty;
 
-		public override void SetVariables(params string[] aVariables)
+		public override void SetVariables(string[] aVariables, string aCommandLine)
 		{
 			switch (aVariables[0])
 			{
@@ -37,7 +37,7 @@ namespace PMesh
 			mNameOfChildren = aVariables[2];
 		}
 
-		public override void Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
+		public override eRuleReply Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
 		{
 			bool isRelative = mNumberOfSplits[0] == '\'';
 			float inputNumberOfSplits = aExpressionParser.Parse(mNumberOfSplits);
@@ -69,6 +69,16 @@ namespace PMesh
 				aShapeList.Add(splitShape);
 				aShape.mScope.mChildren.Add(splitShape.mScope);
 			}
+			return eRuleReply.Success;
+		}
+
+		public override BaseRule DeepCopy()
+		{
+			SplitRule copy = new SplitRule();
+			copy.mAxis = mAxis;
+			copy.mNumberOfSplits = mNumberOfSplits;
+			copy.mNameOfChildren = mNameOfChildren;
+			return copy;
 		}
 	}
 }

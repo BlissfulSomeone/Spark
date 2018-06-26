@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class ProceduralMeshParser : MonoBehaviour
 {
+	private struct Command
+	{
+		public string name;
+		public int arguments;
+		public PMesh.BaseRule ruleObject;
+	}
+
 	private const string OPERATOR_SHAPE_START = "-->";
 	private const string OPERATOR_SHAPE_END = "---";
 	private const string OPERATOR_COMMAND_END = ";";
@@ -15,24 +22,16 @@ public class ProceduralMeshParser : MonoBehaviour
 	private static Dictionary<string, PMesh.RuleSet> mRuleSets = new Dictionary<string, PMesh.RuleSet>();
 	private static PMesh.RuleSet mCurrentSet = null;
 	private static Dictionary<string, float> mVariables = new Dictionary<string, float>();
-	//private static Dictionary<string, int> mCommands = new Dictionary<string, int>()
-	//{ 
-	//	{ "extrude", 1 },
-	//	{ "scale", 3 },
-	//	{ "translate", 3 },
-	//	{ "split", 3 },
-	//	{ "color", 1 },
-	//	{ "copy", 1 },
-	//};
 
-	private static Dictionary<string, Tuple<int, PMesh.BaseRule>> mCommands = new Dictionary<string, Tuple<int, PMesh.BaseRule>>()
+	private static readonly Command[] mCommands = new Command[]
 	{
-		{ "extrude",	new Tuple<int, PMesh.BaseRule>(1, new PMesh.ExtrudeRule()) },
-		{ "scale",		new Tuple<int, PMesh.BaseRule>(3, new PMesh.ScaleRule()) },
-		{ "translate",	new Tuple<int, PMesh.BaseRule>(3, new PMesh.TranslateRule()) },
-		{ "split",		new Tuple<int, PMesh.BaseRule>(3, new PMesh.SplitRule()) },
-		{ "color",		new Tuple<int, PMesh.BaseRule>(1, new PMesh.ColorRule()) },
-		{ "copy",		new Tuple<int, PMesh.BaseRule>(1, new PMesh.CopyRule()) },
+		new Command { name = "extrude",		arguments = 1, ruleObject = new PMesh.ExtrudeRule() },
+		new Command { name = "scale",		arguments = 3, ruleObject = new PMesh.ScaleRule() },
+		new Command { name = "translate",	arguments = 3, ruleObject = new PMesh.TranslateRule() },
+		new Command { name = "split",		arguments = 3, ruleObject = new PMesh.SplitRule() },
+		new Command { name = "color",		arguments = 1, ruleObject = new PMesh.ColorRule() },
+		new Command { name = "copy",		arguments = 1, ruleObject = new PMesh.CopyRule() },
+		new Command { name = "case",        arguments = 3, ruleObject = new PMesh.CaseRule() },
 	};
 	
 	public static void ParseInput(string aInput, string aVariables)
@@ -99,20 +98,15 @@ public class ProceduralMeshParser : MonoBehaviour
 		int argumentsStart = aCommandLine.IndexOf(OPERATOR_ARGUMENTS_START);
 		string command = argumentsStart > 0 ? aCommandLine.Substring(0, argumentsStart) : aCommandLine;
 		string[] arguments = GetArguments(aCommandLine);
-
-		//string lmao = string.Empty;
-		//foreach (string argument in arguments)
-		//{
-		//	lmao += argument + "; ";
-		//}
-		//Debug.Log(lmao);
-		//return;
-
-		if (mCommands.ContainsKey(command) == true && arguments.Length == mCommands[command].First)
+		
+		for (int i = 0; i < mCommands.Length; ++i)
 		{
-			PMesh.BaseRule rule = mCommands[command].Second.ShallowCopy();
-			rule.SetVariables(arguments);
-			mCurrentSet.mRules.Add(rule);
+			if (mCommands[i].name == command && mCommands[i].arguments == arguments.Length)
+			{
+				PMesh.BaseRule rule = mCommands[i].ruleObject.DeepCopy();
+				rule.SetVariables(arguments, aCommandLine);
+				mCurrentSet.mRules.Add(rule);
+			}
 		}
 	}
 
@@ -155,14 +149,5 @@ public class ProceduralMeshParser : MonoBehaviour
 			return arguments.ToArray();
 		}
 		return new string[] { };
-		//int argumentsStart = aInput.IndexOf(OPERATOR_ARGUMENTS_START);
-		//int argumentsEnd = aInput.IndexOf(OPERATOR_ARGUMENTS_END);
-		//if (argumentsStart > 0 && argumentsEnd > argumentsStart)
-		//{
-		//	string argumentsString = aInput.Substring(argumentsStart + 1, argumentsEnd - argumentsStart - 1);
-		//	string[] arguments = Split(argumentsString, OPERATOR_NEXT_ARGUMENT);
-		//	return arguments;
-		//}
-		//return new string[] { };
 	}
 }

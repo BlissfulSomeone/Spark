@@ -8,14 +8,22 @@ namespace PMesh
 	{
 		public string mHexColor = "ffffff";
 
-		public override void SetVariables(params string[] aVariables)
+		public override void SetVariables(string[] aVariables, string aCommandLine)
 		{
 			mHexColor = aVariables[0];
 		}
 
-		public override void Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
+		public override eRuleReply Process(Shape aShape, ref List<Shape> aShapeList, ShuntingYard aExpressionParser)
 		{
 			ColorUtility.TryParseHtmlString(mHexColor, out aShape.mScope.mColor);
+			return eRuleReply.Success;
+		}
+
+		public override BaseRule DeepCopy()
+		{
+			ColorRule copy = new ColorRule();
+			copy.mHexColor = mHexColor;
+			return copy;
 		}
 	}
 }

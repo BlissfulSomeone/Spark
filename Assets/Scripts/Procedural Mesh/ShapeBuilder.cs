@@ -32,7 +32,7 @@ namespace PMesh
 				Destroy(mObjects[i].gameObject);
 			}
 			mObjects.Clear();
-
+			
 			mShapes.Clear();
 			Shape initialShape = new Shape();
 			initialShape.mName = "Footprint";
@@ -45,14 +45,24 @@ namespace PMesh
 				done = true;
 				for (int i = 0; i < mShapes.Count; ++i)
 				{
-					if (aRuleSets.ContainsKey(mShapes[i].mName) == true && mShapes[i].mScope.mChildren.Count == 0)
+					bool shapeProcessed = false;
+					if (aRuleSets.ContainsKey(mShapes[i].mName) == true && mShapes[i].mIsDone == false)
 					{
+						shapeProcessed = true;
 						done = false;
 						RuleSet ruleSet = aRuleSets[mShapes[i].mName];
 						for (int j = 0; j < ruleSet.mRules.Count; ++j)
 						{
-							ProcessRule(ruleSet.mRules[j], mShapes[i]);
+							if (ProcessRule(ruleSet.mRules[j], mShapes[i]) == eRuleReply.Failed)
+							{
+								break;
+							}
 						}
+					}
+					mShapes[i].mIsDone = true;
+					if (shapeProcessed == false)
+					{
+						mTempShapes.Add(mShapes[i]);
 					}
 				}
 				if (done == false)
@@ -78,7 +88,7 @@ namespace PMesh
 			yield return new WaitForEndOfFrame();
 		}
 
-		private void ProcessRule(BaseRule aRule, Shape aShape)
+		private eRuleReply ProcessRule(BaseRule aRule, Shape aShape)
 		{
 			Dictionary<string, float> variables = new Dictionary<string, float>();
 			foreach (KeyValuePair<string, float> kvp in mVariables)
@@ -98,7 +108,7 @@ namespace PMesh
 			}
 			mExpressionParser.SetVariables(variables);
 
-			aRule.Process(aShape, ref mTempShapes, mExpressionParser);
+			return aRule.Process(aShape, ref mTempShapes, mExpressionParser);
 		}
 	}
 }

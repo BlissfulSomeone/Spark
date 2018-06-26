@@ -1,0 +1,12 @@
+Footprint -->
+	scale(2, 2, 2);
+	copy(Base);
+	
+---
+
+Base -->
+	copy(X);
+	case(scope.scale.x, >, 0.1);
+	translate(scope.scale.x, 0, 0);
+	scale('0.8, '0.8, '0.8);
+	copy(Base);
